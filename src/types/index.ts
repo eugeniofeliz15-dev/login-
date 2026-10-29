@@ -7,7 +7,7 @@ export interface User {
   telefono?: string | null;
   rol_id: number;
   nombre_rol?: string;
-  
+  usuarioAvatar?: string | null;
   rol?: Role;
 }
 
@@ -17,7 +17,7 @@ export interface AuthResponse {
   usuario_id: number;
   rol_id: number;
   nombre_completo: string;
-  usuarioAvatar: string | null
+  usuarioAvatar?: string | null;
   email: string;
 }
 

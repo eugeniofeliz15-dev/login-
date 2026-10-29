@@ -1,9 +1,16 @@
 import { useState, type FormEvent } from "react";
 import { LoaderCircle, X } from "lucide-react";
 import { api } from "../services/api";
+import { perfilService } from "../services/perfil";
 import type { User } from "../types";
+import { InputFotoPerfil } from "./InputFotoPerfil";
 
-export default function AccountSettings({ user, onClose, onUpdated }: { user: User; onClose: () => void; onUpdated: (user: User) => void }) {
+export default function AccountSettings({ user, onClose, onUpdated, onTemporaryAvatarChange }: {
+  user: User;
+  onClose: () => void;
+  onUpdated: (user: User) => void;
+  onTemporaryAvatarChange: (file: File | undefined) => void;
+}) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
@@ -13,11 +20,11 @@ export default function AccountSettings({ user, onClose, onUpdated }: { user: Us
     setBusy(true); setError(""); setNotice("");
     const form = new FormData(event.currentTarget);
     try {
-      const updated = await api.updateProfile({
+      const updated = await perfilService.actualizar({
         nombre_completo: String(form.get("name")),
         telefono: String(form.get("phone") || ""),
       });
-      onUpdated({ ...updated, rol: user.rol });
+      onUpdated({ ...user, ...updated, rol: user.rol });
       setNotice("Perfil actualizado.");
     } catch (reason) { setError(reason instanceof Error ? reason.message : "No se pudo actualizar el perfil."); }
     finally { setBusy(false); }
@@ -45,6 +52,12 @@ export default function AccountSettings({ user, onClose, onUpdated }: { user: Us
     <div role="dialog" aria-modal="true" aria-labelledby="account-title" className="my-auto max-h-[92vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl">
       <div className="mb-5 flex items-center justify-between"><div><p className="text-[10px] font-bold uppercase tracking-[.16em] text-[#81917d]">CUENTA</p><h2 id="account-title" className="mt-1 font-display text-xl font-bold text-[#30362e]">Perfil y seguridad</h2></div><button aria-label="Cerrar" onClick={onClose} className="rounded-lg p-2 text-[#82877c] hover:bg-[#f1f2ed]"><X size={18} /></button></div>
       <form onSubmit={updateProfile} className="space-y-3">
+        <InputFotoPerfil
+          fotoActual={user.usuarioAvatar}
+          iniciales={user.nombre_completo.trim().slice(0, 2).toUpperCase() || "NN"}
+          onChange={onTemporaryAvatarChange}
+        />
+        <p className="text-center text-xs text-[#8d9187]">Vista temporal: la foto aún no se guarda en tu cuenta.</p>
         <label className="block"><span className="mb-1.5 block text-xs font-semibold text-[#484c43]">Nombre completo</span><input name="name" required minLength={2} maxLength={100} defaultValue={user.nombre_completo} className="input" /></label>
         <label className="block"><span className="mb-1.5 block text-xs font-semibold text-[#484c43]">Teléfono</span><input name="phone" maxLength={20} defaultValue={user.telefono ?? ""} className="input" /></label>
         <label className="block"><span className="mb-1.5 block text-xs font-semibold text-[#484c43]">Correo electrónico</span><input disabled value={user.email} className="input bg-[#f5f6f2] text-[#969a90]" /></label>

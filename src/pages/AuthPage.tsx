@@ -34,6 +34,7 @@ export function AuthScreen({
         nombre_completo: result.nombre_completo,
         email: result.email,
         rol_id: result.rol_id,
+        usuarioAvatar: result.usuarioAvatar ?? null,
       });
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "Ocurrió un error inesperado.");

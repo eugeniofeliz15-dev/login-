@@ -1,28 +1,14 @@
-import { api } from "../lib/axios"
+import { api } from "./api";
+import type { User } from "../types";
 
-export interface PerfeliFormData {
-    name: string
+export interface PerfilFormData {
+  nombre_completo?: string;
+  telefono?: string;
 }
 
-export interface UserProfile {
-    id:number;
-    email: String;
-    name: String;
-    role: String
-    avatar_url: String | null;
-}
+export type UserProfile = User;
 
 export const perfilService = {
-    obtener: ()=> api.get<UserProfile>("/auth/me").then((r) => r.data),
-
-    actualizar: (datos:PerfeliFormData, foto?:file)=> {
-        const formData = new FormData();
-
-        formData.append("name, datos.name");
-        if(foto){
-            formData.append("foto", foto);
-        }
-
-        return api.put<UserProfile>("/auth/perfil",formData).then((r)=> r.data);
-    },
-}
+  obtener: () => api.profile(),
+  actualizar: (datos: PerfilFormData) => api.updateProfile(datos),
+};
